@@ -7,7 +7,15 @@ type Config struct {
 	Username       string `yaml:"username"`
 	IconURL        string `yaml:"icon_url"`
 	IconEmoji      string `yaml:"icon_emoji"`
-	Message        string `yaml:"message"`
-	PackageName    string
-	PlayStoreURL   string
+	StartMessage   string `yaml:"start_message"`
+	SuccessMessage string `yaml:"success_message"`
+	ErrorMessage   string `yaml:"error_message"`
+	SleepTime      int    `yaml:"sleep_time"`
+}
+
+// AppConfig include Config and cli's local config
+type AppConfig struct {
+	Params       Config
+	PackageName  string
+	PlayStoreURL string
 }

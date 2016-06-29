@@ -1,7 +1,13 @@
+# slack api config
 slack_api_key: "your slack token"
 slack_channel_id: "slack channel id to post"
+
+# bot user config
 icon_url: "icon url, empty if not needed(icon_emoji will be used)."
 icon_emoji: "icon emoji, default to :android:"
 username: "default to Playstore update checker"
 message: "message when the update is found"
 error_message: "message when failed to find update"
+
+# cli config
+sleep_time: 60 # time in seconds. defaults to 60

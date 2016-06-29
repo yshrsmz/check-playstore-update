@@ -7,21 +7,60 @@ import (
 	"github.com/nlopes/slack"
 )
 
-func report(name string, config Config) {
-	api := slack.New(config.SlackAPIKey)
-	logger := log.New(os.Stdout, "slack: ", log.Lshortfile|log.LstdFlags)
-	slack.SetLogger(logger)
-	api.SetDebug(true)
+var api *slack.Client
 
-	// channel, err := api.GetChannelInfo(config.SlackChannelID)
-	// if err != nil {
-	// 	log.Print(err)
-	// 	return
-	// }
+func reportStart(config AppConfig) {
+	api = getAPI(config)
 
+	params := createDefaultParameters(config)
+	message := "Start polling update..."
+	if config.Params.StartMessage != "" {
+		message = config.Params.StartMessage
+	}
+
+	resChannel, timestamp, err := api.PostMessage(config.Params.SlackChannelID, message, params)
+	if err != nil {
+		log.Fatalf("error during post message: %v", err)
+	}
+	log.Printf("posted %v, %v", resChannel, timestamp)
+}
+
+func reportSuccess(config AppConfig) {
+	api = getAPI(config)
+
+	params := createDefaultParameters(config)
+	message := "App update has been deployed!"
+	if config.Params.SuccessMessage != "" {
+		message = config.Params.SuccessMessage
+	}
+
+	resChannel, timestamp, err := api.PostMessage(config.Params.SlackChannelID, message, params)
+	if err != nil {
+		log.Fatalf("error during post message: %v", err)
+	}
+
+	log.Printf("posted %v, %v", resChannel, timestamp)
+}
+
+func reportError(config AppConfig) {
+	api = getAPI(config)
+
+	params := createDefaultParameters(config)
+	message := "polling failed somehow :("
+	if config.Params.ErrorMessage != "" {
+		message = config.Params.ErrorMessage
+	}
+
+	resChannel, timestamp, err := api.PostMessage(config.Params.SlackChannelID, message, params)
+	if err != nil {
+		log.Fatalf("error during post message: %v", err)
+	}
+	log.Printf("posted %v, %v", resChannel, timestamp)
+}
+
+func createDefaultParameters(config AppConfig) slack.PostMessageParameters {
 	params := slack.PostMessageParameters{
-		Username:  "Playstore update checker",
-		IconEmoji: ":android:",
+		Username: "Playstore update checker",
 		Attachments: []slack.Attachment{
 			slack.Attachment{
 				Title:     config.PackageName,
@@ -30,25 +69,29 @@ func report(name string, config Config) {
 		},
 	}
 
-	if config.Username != "" {
-		params.Username = config.Username
+	if config.Params.Username != "" {
+		params.Username = config.Params.Username
 	}
 
-	if config.IconURL != "" {
-		params.IconURL = config.IconURL
-	} else if config.IconEmoji != "" {
-		params.IconEmoji = config.IconEmoji
+	if config.Params.IconURL != "" {
+		params.IconURL = config.Params.IconURL
+	} else if config.Params.IconEmoji != "" {
+		params.IconEmoji = config.Params.IconEmoji
+	} else {
+		params.IconEmoji = ":android:"
 	}
 
-	message := "App update has been deployed!"
-	if config.Message != "" {
-		message = config.Message
-	}
+	return params
+}
 
-	resChannel, timestamp, err := api.PostMessage(config.SlackChannelID, message, params)
-	if err != nil {
-		log.Fatalf("error during post message: %v", err)
-	}
+func getAPI(config AppConfig) *slack.Client {
+	if api == nil {
+		log.Println("create new api instance")
+		api = slack.New(config.Params.SlackAPIKey)
 
-	log.Printf("posted %v, %v", resChannel, timestamp)
+		logger := log.New(os.Stdout, "slack: ", log.Lshortfile|log.LstdFlags)
+		slack.SetLogger(logger)
+		api.SetDebug(true)
+	}
+	return api
 }

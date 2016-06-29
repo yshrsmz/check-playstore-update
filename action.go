@@ -4,7 +4,10 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"sync"
+	"time"
 
+	"github.com/roylee0704/gron"
 	"github.com/urfave/cli"
 	"gopkg.in/yaml.v2"
 )
@@ -18,25 +21,34 @@ func doAction(c *cli.Context) error {
 		log.Fatalf("error %v", err)
 	}
 
-	packageName := c.String("name")
-	if packageName == "" {
-		log.Fatalln("package name is not provided")
-	}
-	config.PackageName = packageName
-
-	storeURL := getPlayStoreURL(packageName)
-	log.Printf("fetch app info from %v", storeURL)
-
-	config.PlayStoreURL = storeURL
+	appConfig := createAppConfig(config, c)
 
 	checkInfo := CheckInfo{}
 
-	nextInfo, _ := check(config.PlayStoreURL, checkInfo)
+	var wg sync.WaitGroup
+	wg.Add(1)
+	g := gron.New()
+	g.AddFunc(gron.Every(3*time.Second), func() {
+		log.Println("checking update...")
+		checkInfo, err = check(appConfig.PlayStoreURL, checkInfo)
+		if err != nil {
+			log.Fatalf("error while checking update: %v", err)
+			// reportError(appConfig)
+			g.Stop()
+			wg.Done()
+		}
 
-	log.Println(nextInfo.OldUpdateDate)
-	log.Println(nextInfo.NewUpdateDate)
-	log.Println(nextInfo.IsUpdated)
-	// report("test", config)
+		if checkInfo.IsUpdated {
+			// reportSuccess(appConfig)
+			g.Stop()
+			wg.Done()
+		}
+	})
+
+	g.Start()
+
+	wg.Wait()
+	//reportStart(appConfig)
 
 	return nil
 }
@@ -44,7 +56,9 @@ func doAction(c *cli.Context) error {
 // read config file from provided path
 func readConfig(path string) (Config, error) {
 	yamlFile, err := ioutil.ReadFile(path)
-	output := Config{}
+	output := Config{
+		SleepTime: 60,
+	}
 
 	if err != nil {
 		return output, err
@@ -56,6 +70,24 @@ func readConfig(path string) (Config, error) {
 	}
 
 	return output, nil
+}
+
+func createAppConfig(config Config, c *cli.Context) AppConfig {
+	packageName := c.String("name")
+	if packageName == "" {
+		log.Fatalln("package name is not provided")
+	}
+
+	storeURL := getPlayStoreURL(packageName)
+	log.Printf("fetch app info from %v", storeURL)
+
+	appConfig := AppConfig{
+		Params:       config,
+		PlayStoreURL: storeURL,
+		PackageName:  packageName,
+	}
+
+	return appConfig
 }
 
 func getPlayStoreURL(packageName string) string {
