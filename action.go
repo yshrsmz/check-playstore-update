@@ -33,13 +33,13 @@ func doAction(c *cli.Context) error {
 		checkInfo, err = check(appConfig.PlayStoreURL, checkInfo)
 		if err != nil {
 			log.Fatalf("error while checking update: %v", err)
-			// reportError(appConfig)
+			reportError(appConfig)
 			g.Stop()
 			wg.Done()
 		}
 
 		if checkInfo.IsUpdated {
-			// reportSuccess(appConfig)
+			reportSuccess(appConfig)
 			g.Stop()
 			wg.Done()
 		}
@@ -47,8 +47,8 @@ func doAction(c *cli.Context) error {
 
 	g.Start()
 
+	reportStart(appConfig)
 	wg.Wait()
-	//reportStart(appConfig)
 
 	return nil
 }
@@ -92,4 +92,5 @@ func createAppConfig(config Config, c *cli.Context) AppConfig {
 
 func getPlayStoreURL(packageName string) string {
 	return "https://play.google.com/store/apps/details?id=" + packageName
+	// return "http://127.0.0.1:8000/test.html"
 }

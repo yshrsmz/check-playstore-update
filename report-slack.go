@@ -60,7 +60,8 @@ func reportError(config AppConfig) {
 
 func createDefaultParameters(config AppConfig) slack.PostMessageParameters {
 	params := slack.PostMessageParameters{
-		Username: "Playstore update checker",
+		Username:  "Playstore update checker",
+		LinkNames: 1,
 		Attachments: []slack.Attachment{
 			slack.Attachment{
 				Title:     config.PackageName,

@@ -10,6 +10,7 @@ for GOOS in darwin linux; do
         go build -v -o bin/check-playstore-update-$GOOS-$GOARCH
     done
 done
-#
+
+# debug
 # export GOARCH=386
 # go build -v -o bin/check-playstore-update-linux-386
