@@ -29,7 +29,14 @@ func doAction(c *cli.Context) error {
 
 	config.PlayStoreURL = storeURL
 
-	report("test", config)
+	checkInfo := CheckInfo{}
+
+	nextInfo, _ := check(config.PlayStoreURL, checkInfo)
+
+	log.Println(nextInfo.OldUpdateDate)
+	log.Println(nextInfo.NewUpdateDate)
+	log.Println(nextInfo.IsUpdated)
+	// report("test", config)
 
 	return nil
 }
