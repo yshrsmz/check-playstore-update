@@ -51,6 +51,9 @@ error_message: "message when failed to find update"
 sleep_time: 60 # time in seconds. defaults to 60
 ```
 
+To try this tool, you can generate your test slack token [here](https://api.slack.com/web)
+And you can get channel id from [here](https://api.slack.com/methods/channels.list/test)
+
 
 ## License
 
