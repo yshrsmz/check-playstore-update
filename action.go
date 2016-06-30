@@ -28,7 +28,7 @@ func doAction(c *cli.Context) error {
 	var wg sync.WaitGroup
 	wg.Add(1)
 	g := gron.New()
-	g.AddFunc(gron.Every(3*time.Second), func() {
+	g.AddFunc(gron.Every(time.Duration(appConfig.Params.SleepTime)*time.Second), func() {
 		log.Println("checking update...")
 		checkInfo, err = check(appConfig.PlayStoreURL, checkInfo)
 		if err != nil {
