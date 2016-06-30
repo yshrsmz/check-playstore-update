@@ -1,7 +1,7 @@
-# go get github.com/urfave/cli
-# go get github.com/nlopes/slack
-# go get github.com/roylee0704/gron
-# go get gopkg.in/yaml.v2
+go get github.com/urfave/cli
+go get github.com/nlopes/slack
+go get github.com/roylee0704/gron
+go get gopkg.in/yaml.v2
 #
 for GOOS in darwin linux; do
     export GOOS=$GOOS
