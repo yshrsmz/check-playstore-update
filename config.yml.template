@@ -6,7 +6,8 @@ slack_channel_id: "slack channel id to post"
 icon_url: "icon url, empty if not needed(icon_emoji will be used)."
 icon_emoji: "icon emoji, default to :android:"
 username: "default to Playstore update checker"
-message: "message when the update is found"
+start_message: "message when the polling starts"
+success_error: "message when the update found"
 error_message: "message when failed to find update"
 
 # cli config
